@@ -129,6 +129,7 @@ def predictions(dataframe):
 
     add_columns(dataframe)
 
+    # add/remove features by uncommenting/commenting feature names
     weather_features_names = [
         # 'maxpressurei',
         # 'maxdewpti',
@@ -144,8 +145,9 @@ def predictions(dataframe):
         # 'maxtempi',
         # 'precipi',
     ]
-
     features = dataframe[weather_features_names]
+
+    # add/remove categoric features by removing dummies for given feature
     #print len(features.columns)
     dummy_units = pandas.get_dummies(dataframe['UNIT'], prefix='unit')
     features = features.join(dummy_units)

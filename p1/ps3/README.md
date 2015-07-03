@@ -6,11 +6,7 @@
     - [entries histogram normalized ](histogram_subway_entries_distribution_normalized.png)
 3. Mann-Whitney U-Test
     - [mmann_whitney_plus_means.py](mann_whitney_plus_means.py)
-3. Mean Temp on Weekends
-    - [avg_weekend_temperature.py](avg_weekend_temperature.py)
 5. Linear regression
-    - [avg_min_temperature.py](avg_min_temperature.py)
-5. Fixing Turnstile Data
     - [linear_regression.py](linear_regression.py)
     - add/remove features by uncommenting/commenting feature names
     - add/remove categoric features by removing dummies for given feature
