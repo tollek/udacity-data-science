@@ -4,8 +4,10 @@
     - [entries_histogram.py](entries_histogram.py)
     - [entries histogram](histogram_subway_entries_distribution.png)
     - [entries histogram normalized ](histogram_subway_entries_distribution_normalized.png)
+2. Quiz
 3. Mann-Whitney U-Test
     - [mmann_whitney_plus_means.py](mann_whitney_plus_means.py)
+4. Quiz    
 5. Linear regression
     - [linear_regression.py](linear_regression.py)
     - add/remove features by uncommenting/commenting feature names
