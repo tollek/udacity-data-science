@@ -175,7 +175,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 3.2. One visualization can be more freeform. You should feel free to implement something that we discussed in class (e.g., scatter plots, line plots)
 or attempt to implement something more advanced if you'd like.
 
-> ![ENTRIESn_hourly per day and hour](img/entries_per_day_and_hour.png.png)
+> ![ENTRIESn_hourly per day and hour](img/entries_per_day_and_hour.png)
 >
 > The plot shows the mean number of entires per hour on every day of week. Data is not split by rainy/non-rainy days.
 > Key insignts:
