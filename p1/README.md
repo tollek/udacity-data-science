@@ -6,7 +6,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 
 1.1 Which statistical test did you use to analyze the NYC subway data? Did you use a one-tail or a two-tail P value? What is the null hypothesis? What is your p-critical value?
 
-> To choose suitable statistical test, I want to find out first how does the population distribution look like.
+> To choose a suitable statistical test, I want to find out first how does the population distribution look like.
   Can I use any test deisnged to work with normal distribution or should I use nonparameteric test?
   Histogram below shows that the sample distribution for subway data is not normal, it is positively skewed.
 
@@ -97,7 +97,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 >      precipi           -52.5742419163
 >      * r_squared         0.535606552964
 >
-> Withother weather removed features I finally got a model with rain > 0.
+> With other weather features removed, I finally got a model with rain > 0.
 >
 >      intercept:       1182.06210326
 >      rain               19.0895076769
@@ -118,7 +118,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 >  - *hour*: transforming hour to a categorical variable enables discovering by the model some non-trivial
 >    effects that the variable has. For *hour* variable such effects are:
 >    - being cyclical: distance from 23 to 0 is the same as 0 to 1.
->    - local peaks (during rush hours)
+>    - multiple peaks (during rush hours)
 >  - *day_of_week*:
 >    - days of week are cyclical;
 
@@ -177,13 +177,13 @@ or attempt to implement something more advanced if you'd like.
 
 > ![ENTRIESn_hourly per day and hour](img/entries_per_day_and_hour.png)
 >
-> The plot shows the mean number of entires per hour on every day of week. Data is not split by rainy/non-rainy days.
+> The plot shows the mean number of entires per hour on every day of week. Data is *not* split by rainy/non-rainy days.
 > Key insignts:
 > - ridership during Mon-Fri is visibly higher than during weekend
 > - Mon-Fri have two clear spikes (morning and afternoon rush hours). Weekends don't have such visible
->   difference between morning, afternoon and rest of the day, although there is a difference, it's not as large
->   as during the week
-> - even throughout the week, there are small differences in ridership: Wednesday are the most busy days
+>   difference between morning, afternoon and rest of the day; although there is a difference, it's not as large
+>   as during the weekdays
+> - even throughout the weekdays, there are small differences in ridership: Wednesday are the most busy days
 >   and Mondays are the least busy ones.
 
 ## Conclusion
@@ -229,7 +229,7 @@ tests and your linear regression to support your analysis.
 >  - extracting more non-trivial features.
 >    'day of week' showed significant improvement on R^2, so including other features might improve it even further
 >  - mixed features e.g. (unit + rain). There is a chance that the weather had different impact
->    on stations/days/hours etc. Such effects can be found only if we build 2, 3, 4- basic features mixes.
+>    on stations/days/hours etc. Such effects can be found only if we build 2, 3- basic features mixes.
 >  - R^2 is not the perfect measure of the regression model. We could add additional metrics
 >    and cross-validate the model.
 
