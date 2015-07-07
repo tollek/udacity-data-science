@@ -166,7 +166,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 >
 > ![ENTRIESn_hourly distribution](img/residuals_histogram.png)
 >
-> For good working model, residuals should form a normal distribution. Plot above shows strong central part and two long
+> For a good working model, residuals should form a normal distribution. Plot above shows strong central part and two long
 > tails, with right tail range twice bigger than left one. The distribution does not look like normal distribution and
 > indicates some problem with the model, especially on the tails.
 > For more details, we can use Q-Q plot.
@@ -207,7 +207,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 >
 > The subset model is still far from perfection, but does not suffer from nonlinear effects as strongly as 
 > the model trained on the whole dataset. 
-> Models for two other subsets did a bit worse than the middle subet model, but better than general model.
+> Models for two other subsets did a bit worse than the middle subset model, but better than general model.
 >
 > Going back to the original question about the the R^2: given 2 siginificant problems with the dataset (large variance and
 > nonlinearity) we can say that linear model in its basic version is not appropriate for the NYC subway ridership data.
@@ -274,8 +274,9 @@ tests and your linear regression to support your analysis.
 > Mann-Whitney U test showed significant difference between the rainy and non-rainy days, although the
 > value of U statistic (close to maximal U value) and P value that was close to the p-critical leaves some
 > feeling of insufficiency. The biggest problem I find with the test is the fact, that test is a 'black box'.
-> Test results does not give any insight what to do with the data (e.g. how to split it by feature/features)
-> to obrain results that leave no doubts about different distribution of sub-populations.
+> If I'd like to dig deeper into the data and find strong discriminators, test results does not give any insights
+> what to do with the data (e.g. how to split it by feature/features) 
+> to obtain results that leave no doubts about population difference.
 >
 > The analysis in 2.6 shows that linear model cannot be used reliably in its current version due to large variablity of data
 > and some nonlinearities. Possible improvements:
