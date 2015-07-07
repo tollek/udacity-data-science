@@ -7,6 +7,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
 
+import scipy.stats
+
 
 def add_columns(df):
     '''
@@ -105,7 +107,53 @@ def plot_residuals(turnstile_weather, predictions):
     plt.figure()
     errs = turnstile_weather['ENTRIESn_hourly'] - predictions
     plt.hist(errs.tolist(), bins=50)
+    #plt.plot(errs)
     plt.show()
+    return plt
+
+def plot_residuals_ex(turnstile_weather, predictions, subplots=True):
+    '''
+    Extended version of plot_residuals, which draws 3 charts:
+    - prediction errors histogram
+    - q-q chart of error vs norm distribution
+    - scatter plot of errors as function of values
+    '''
+    values = turnstile_weather['ENTRIESn_hourly']
+    errs = values - predictions
+    # print 'errs mean = {0}, stdev = {1}'.format(np.mean(errs), np.std(errs))
+    subplot_rows = 2
+    subplot_cols = 2
+
+    if subplots:
+        plt.subplot(subplot_rows, subplot_cols, 1)
+    # plt.figure()
+    plt.hist(errs.tolist(), bins=50)
+    plt.plot()
+    plt.title("Residuals histogram")
+    plt.xlabel('Prediction error')
+    plt.ylabel('Count')
+    if not subplots:
+        plt.show()
+        plt.close()
+
+    if subplots:
+        plt.subplot(subplot_rows, subplot_cols, 2)
+    scipy.stats.probplot(errs, plot=plt)
+    plt.plot()
+    plt.title("Residuals vs normal dist Q-Q plot")
+    plt.xlabel('Normal theoretical quantiles')
+    plt.ylabel('Ordered residuals')
+    if not subplots:
+        plt.show()
+        plt.close()
+
+    if subplots:
+        plt.subplot(subplot_rows, subplot_cols, 3)
+    plt.scatter(values, errs)
+    plt.title("Errors as function of value")
+    plt.xlabel('ENTRIESn_hourly')
+    plt.ylabel('Errors')
+    plt.plot()
     return plt
 
 
@@ -178,18 +226,40 @@ def predictions(dataframe):
 
     predictions = intercept + np.dot(features_array, params)
 
-    # plot_residuals(dataframe, predictions)
     r_squared = compute_r_squared(values, predictions)
     print 'r_squared = ', r_squared
+
+    show_redisuals_plot = False
+    if show_redisuals_plot:
+        rplot = plot_residuals_ex(dataframe, predictions, subplots=True)
+        rplot.show()
+        rplot.close()
+
+    save_predictions = False
+    if save_predictions:
+        dataframe["predictions"] = predictions
+        dataframe[["DATEn", "Hour", "UNIT", "ENTRIESn_hourly", "predictions"]].to_csv('predictions.csv')
 
     return predictions
 
 
 def main():
     turnstile_weather = pandas.read_csv('turnstile_data_master_with_weather.csv')
+    # turnstile_weather = turnstile_weather[(turnstile_weather['ENTRIESn_hourly'] >= 30) & (turnstile_weather['ENTRIESn_hourly'] < 5000)]
     turnstile_weather = turnstile_weather.sample(len(turnstile_weather) / 5, random_state = 7)
     p = predictions(turnstile_weather)
     print p
 
+def residual_analysis():
+    predictions_file = 'predictions_22k_50_5000.csv'
+    df = pandas.read_csv(predictions_file)
+    predictions = df['predictions'].tolist()
+    rplot = plot_residuals_ex(df, predictions, subplots=True)
+    rplot.show()
+    rplot.close()
+    return
+
+
 if __name__ == "__main__":
-    main()
+    #main()
+    residual_analysis()

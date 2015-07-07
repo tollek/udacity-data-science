@@ -29,13 +29,19 @@ def mann_whitney_plus_means(turnstile_weather):
     '''
     
     ### YOUR CODE HERE ###
+    # Change low and high to test subset of data.
+    low = 0
+    high = 100000000
     tw = turnstile_weather
+    tw = tw[(tw['ENTRIESn_hourly'] >= low) & (tw['ENTRIESn_hourly'] < high)]
     print len(tw)
     norain_hist = tw[tw['rain'] == 0.0]['ENTRIESn_hourly']
     print 'len(norain_hist)', len(norain_hist)
     rain_hist = tw[tw['rain'] == 1.0]['ENTRIESn_hourly']
     print 'len(rain_hist)', len(rain_hist)
     U, p = scipy.stats.mannwhitneyu(norain_hist, rain_hist)
+    Umax = len(norain_hist) * len(rain_hist) / 2
+    print 'U / Umax {0} = {1}'.format(Umax, 1.0 * U / Umax)
     return np.mean(rain_hist), np.mean(norain_hist), U, p # leave this line for the grader
 
 

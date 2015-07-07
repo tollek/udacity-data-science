@@ -137,28 +137,79 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 
 2.6 What does this R2 value mean for the goodness of fit for your regression model? Do you think this linear model to predict ridership is appropriate for this dataset, given this R2  value?
 
-> The ridership data has large variances, even if we group the data by the UNIT
-> (which has the biggest impact on the ENTRIESn_hourly value).
-> Below we have a sample of 5 random UNITS with mean and stdev’s of each UNIT:
+> The single R^2 value of ~0.533 is not enough to clearly answer the question if the linear model is a good choice for
+> NYC subway ridership dataset. For given R^2 we can have a few different explanations:
+> - the model type is a bad choice, e.g. data has some significant nonlinearity that cannot be ignored
+> - the dataset itself has large variances, event between samples which seem 'similar' to each other.
+>   Indeed, the ridership data has large variances, even if we group the data by the UNIT (which has the biggest impact on the
+>    ENTRIESn_hourly value).
+>    Below we have a sample of 5 random UNITS with mean and stdev’s of each UNIT:
 >
->         UNIT  rain     sum         mean          std  std / mean
->     0   R002     0  118434   978.793388  1297.572978    1.325686
->     1   R002     1   58101   937.112903  1282.306722    1.368359
->     2   R027     0  376892  2921.643411  4413.031651    1.510462
->     3   R027     1  204139  3046.850746  4773.857062    1.566817
->     4   R028     0  336519  2530.218045  2916.048297    1.152489
->     5   R028     1  172388  2462.685714  2994.253049    1.215849
->     6   R045     0  331189  2670.879032  2985.021618    1.117618
->     7   R045     1  217318  3505.129032  3559.578233    1.015534
->     8   R061     0   72316   663.449541   502.890782    0.757994
->     9   R061     1   39480   692.631579   542.232476    0.782858
+>           UNIT  rain     sum         mean          std  std / mean
+>       0   R002     0  118434   978.793388  1297.572978    1.325686
+>       1   R002     1   58101   937.112903  1282.306722    1.368359
+>       2   R027     0  376892  2921.643411  4413.031651    1.510462
+>       3   R027     1  204139  3046.850746  4773.857062    1.566817
+>       4   R028     0  336519  2530.218045  2916.048297    1.152489
+>       5   R028     1  172388  2462.685714  2994.253049    1.215849
+>       6   R045     0  331189  2670.879032  2985.021618    1.117618
+>       7   R045     1  217318  3505.129032  3559.578233    1.015534
+>       8   R061     0   72316   663.449541   502.890782    0.757994
+>       9   R061     1   39480   692.631579   542.232476    0.782858
 >
-> For most of data the stdev is larger or close to the mean, which means that the ridership data has
-> large variance. Even if we fix most of the parameters (like unit, day of week, rain),
-> we have large spread of ridership values.
+>   For most of data the stdev is larger or close to the mean, which means that the ridership data has
+>   large variance. Even if we fix most of the parameters (like unit, day of week, rain),
+>   we have large spread of ridership values.
+> - combination of both explanations above
 >
-> Given that, the R^2 = 0.533 explains significant part of the ridership variability.
-> Hovewer model should not be used for reliable predictions of subway usage.
+> To answer the question more precisely, we should analyze the model residuals.
+>
+> ![ENTRIESn_hourly distribution](img/residuals_histogram.png)
+>
+> For good working model, residuals should form a normal distribution. Plot above shows strong central part and two long
+> tails, with right tail range twice bigger than left one. The distribution does not look like normal distribution and
+> indicates some problem with the model, especially on the tails.
+> For more details, we can use Q-Q plot.
+>
+> ![ENTRIESn_hourly distribution](img/residuals_qq.png)
+>
+> Clearly, the values on tails do not follow normal distribution, and the difference grows rapidly after exceeding:
+>
+>     z = -2 [p = 0.228, sample value = 0]
+>     z = 2  [p = 0,977, sample value ~5000]
+>
+> It most likley means that the model overestimated values for samples with *ENTRIESn_hourly* = 0 and
+> underestimated large values of *ENTRIESn_hourly* (it's possible that large negative errors come from samples that
+> are far from 0, but this is the most reasonable explanation).
+>
+> Finally, to see where the biggest errors come from, we plot residuals (errors) as function of values:
+>
+> ![ENTRIESn_hourly distribution](img/residuals_of_value.png)
+>
+> As expected after the Q-Q plot, the 0 values have large error due to overestimation and large values (> 10000)
+> have large error due to model underestimation. It seems, that the dataset has 3 significantly different segments of samples:
+>
+> - [0, 0]
+> - (0, 5000]
+> - (5000, inf)
+>
+> and that simple linear model cannot reliably predict values of the whole dataset.
+>
+> To check the hypothesis about the 3 segments, I retrained a model on samples with ENTRIESn_hourly from interval [50-5000].
+> Residual graphs for this segments:
+>
+> ![ENTRIESn_hourly distribution](img/residuals_50_5000_plots.png)
+>
+> Graphs show much 'healthier' residuals distributions:
+> - histogram looks more like normal distribution,
+> - Q-Q plot shows that distribution follows the normal distribution more closely (althouth there are still differences on tails)
+> - errors spread almost uniformly throughout all the values.
+>
+> The subset model is still far from perfection, but does not suffer from nonlinear effects as strongly as the model trained
+> on the whole dataset.
+>
+> Going back to the original question about the the R^2: given 2 siginificant problems with the dataset (large variance and
+> nonlinearity) we can say that linear model in its basic version is not appropriate for the NYC subway ridership data.
 
 ## Visualization
 
@@ -218,12 +269,14 @@ tests and your linear regression to support your analysis.
 > of the samples. Either dataset did not contain enough features to explain the variability, or
 > I didn't extract enough information from existing features to explain it.
 >
-> The large difference among subway stations might have impact on the Mann-Whitney test - heavily used
-> station will always rank higher than smaller/less significant station, despite the outdoor
-> conditions. Running the test separately for different stations/turnstiles or normalizing the data
-> before the test might be a good idea.
-
-> The linear model gave fine results, but definitely could be improved:
+> Mann-Whitney U test showed significant difference between the rainy and non-rainy days, although the
+> value of U statistic (close to maximal U value) and P value that was close to the p-critical leaves some
+> feeling of insufficiency. The biggest problem I find with the test is the fact, that test is a 'black box'.
+> Test results does not give any insight what to do with the data (e.g. how to split it by feature/features)
+> to obrain results that leave no doubts about different distribution of populations.
+>
+> The analysis in 2.6 shows that linear model cannot be used reliably in its current version due to large variablity of data
+> and some nonlinearities. Possible improvements:
 >  - more features, e.g. relationship between stations or alternative types of transportation
 >    might explain more variability in the data
 >  - extracting more non-trivial features.
@@ -245,5 +298,5 @@ how_the_mann-whitney_test_works.htm)
 - [udacity forum: impact of new features and problem with constant variable](https://discussions.udacity.com/t/relationship-between-p-and-r-2-value/19628/2)
 - [blog.minitab.com: interpretation of R^2](http://blog.minitab.com/blog/adventures-in-statistics/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit)
 - [blog.minitab.com: interpreting models with low R^2 values](http://blog.minitab.com/blog/adventures-in-statistics/how-to-interpret-a-regression-model-with-low-r-squared-and-low-p-values)
-
+- [interpration of residuals](http://www.itl.nist.gov/div898/handbook/pri/section2/pri24.htm)
 

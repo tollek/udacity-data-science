@@ -1,0 +1,7 @@
+# Predictions results for different data segments (predictions_samplesize_lowerlimit_upperlimit.csv)
+predictions_15k_0_30.csv
+predictions_22k_50_5000.csv
+predictions_26k_fulldata.csv
+predictions_3k_5000plus.csv
+predictions_results.txt
+
