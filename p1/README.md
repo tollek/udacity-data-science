@@ -140,7 +140,7 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 > The single R^2 value of ~0.533 is not enough to clearly answer the question if the linear model is a good choice for
 > NYC subway ridership dataset. For given R^2 we can have a few different explanations:
 > - the model type is a bad choice, e.g. data has some significant nonlinearity that cannot be ignored
-> - the dataset itself has large variances, event between samples which seem 'similar' to each other.
+> - the dataset itself has large variances, event between samples which seem 'similar' to each other.  
 >   Indeed, the ridership data has large variances, even if we group the data by the UNIT (which has the biggest impact on the
 >    ENTRIESn_hourly value).
 >    Below we have a sample of 5 random UNITS with mean and stdev’s of each UNIT:
@@ -189,24 +189,25 @@ github: https://github.com/tollek/udacity-data-science/tree/master/p1
 > As expected after the Q-Q plot, the 0 values have large error due to overestimation and large values (> 10000)
 > have large error due to model underestimation. It seems, that the dataset has 3 significantly different segments of samples:
 >
-> - [0, 0]
-> - (0, 5000]
+> - [0, small_n ~ 30-100]
+> - (small_n, 5000]
 > - (5000, inf)
 >
 > and that simple linear model cannot reliably predict values of the whole dataset.
 >
 > To check the hypothesis about the 3 segments, I retrained a model on samples with ENTRIESn_hourly from interval [50-5000].
-> Residual graphs for this segments:
+> Residual graphs for this segment:
 >
 > ![ENTRIESn_hourly distribution](img/residuals_50_5000_plots.png)
 >
 > Graphs show much 'healthier' residuals distributions:
 > - histogram looks more like normal distribution,
-> - Q-Q plot shows that distribution follows the normal distribution more closely (althouth there are still differences on tails)
-> - errors spread almost uniformly throughout all the values.
+> - Q-Q plot shows that distribution follows the normal distribution more closely (although there are still differences on tails)
+> - errors spread more uniformly throughout all the values.
 >
-> The subset model is still far from perfection, but does not suffer from nonlinear effects as strongly as the model trained
-> on the whole dataset.
+> The subset model is still far from perfection, but does not suffer from nonlinear effects as strongly as 
+> the model trained on the whole dataset. 
+> Models for two other subsets did a bit worse than the middle subet model, but better than general model.
 >
 > Going back to the original question about the the R^2: given 2 siginificant problems with the dataset (large variance and
 > nonlinearity) we can say that linear model in its basic version is not appropriate for the NYC subway ridership data.
@@ -261,8 +262,9 @@ tests and your linear regression to support your analysis.
 ## Reflection
 
 5.1. Please discuss potential shortcomings of the methods of your analysis, including:
-1. Dataset,
-2. Analysis, such as the linear regression model or statistical test.
+
+  1. Dataset,
+  2. Analysis, such as the linear regression model or statistical test.
 
 > The dataset contained samples which differ significantly in terms of ridership. The most significant
 > factor was the turnstile unit, but even with fixed turnstile we still find large variability for most
@@ -273,7 +275,7 @@ tests and your linear regression to support your analysis.
 > value of U statistic (close to maximal U value) and P value that was close to the p-critical leaves some
 > feeling of insufficiency. The biggest problem I find with the test is the fact, that test is a 'black box'.
 > Test results does not give any insight what to do with the data (e.g. how to split it by feature/features)
-> to obrain results that leave no doubts about different distribution of populations.
+> to obrain results that leave no doubts about different distribution of sub-populations.
 >
 > The analysis in 2.6 shows that linear model cannot be used reliably in its current version due to large variablity of data
 > and some nonlinearities. Possible improvements:
