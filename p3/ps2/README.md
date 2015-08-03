@@ -1,4 +1,4 @@
-### Problem Set 2: Data in more complext formats
+### Problem Set 2: Data in more complex formats
 
 1. Carrier List
     - [carriers.py](carriers.py)
