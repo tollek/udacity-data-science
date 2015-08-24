@@ -1,6 +1,6 @@
 Test a Perceptual Phenomenon
 
-github: https://github.com/tollek/udacity-data-science/tree/master/p2
+github: https://github.com/tollek/udacity-data-science/tree/master/p1
 
 1. To view the project report:  
     open [stroop.ipynb](stroop.ipynb)
