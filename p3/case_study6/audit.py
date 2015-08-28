@@ -58,12 +58,12 @@ def audit(osmfile):
 def update_name(name, mapping):
     unexpected = street_type_re.search(name)
     if not unexpected:
-        raise name
+        raise Exception(name)
 
     unexpected = unexpected.group()
     replacement = mapping[unexpected]
     if not replacement:
-        raise unexpected
+        raise Exception(unexpected)
 
     better_name = re.sub(unexpected, replacement, name)
     return better_name
