@@ -1,0 +1,10 @@
+# Large OSM XML data file, should not be pushed into github
+krakow_poland.osm
+.krakow_poland.osm.swp
+# street name audit checkpoint file
+street_city_names.txt
+
+*.pyc
+
+# To be removed
+tmp
