@@ -12,7 +12,7 @@ This repository contains project work for Udacity's [Data Analyst Nanodegree](ht
 - **[p3](p3)** - Data Wrangle OpenStreetMaps Data
 
 ### Courses:
-- [Statistics](https://www.udacity.com/course/viewer#!/c-ud134-nd)_
+- [Statistics](https://www.udacity.com/course/viewer#!/c-ud134-nd)
 - [Intro to Data Science](https://www.udacity.com/course/viewer#!/c-ud359-nd/l-4329629164)
 - [Data Wrangling with MongoDB](https://www.udacity.com/course/viewer#!/c-ud032-nd/l-768058569)
 
