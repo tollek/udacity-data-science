@@ -282,7 +282,9 @@ Auditing the completeness of data has shown important problem with missing resta
 #### Completeness benchmark
 Being up-to-date with all privately run businesses is super difficult task, especially for projects that are run mostly thanks to voluntary work. I checked completeness of restaurant data, but the low  completeness percentage might not be a problem for different types of amenities.
 First of all, I expect large differences in coverage for facilities that have one central index, which can be used to pull data from. That's true e.g. for post offices or police stations. There are single pages where OSM editors can pull the data  from.
+
 Situation is completely different for private business and restuarants are only one example of such. Bars, cafes, barbers, etc. do not have one single index (actually, there migt be one, I discuss it in next section), which makes keeping the data in sync very difficult task.
+
 Some type of live benchmark that pulls data from well defined 'sources of truth' and verifies how many of the entries can be found in OSM could be an incentive to work on amenities with low coverage. Next to the coverage and 'delta' (with red/green colors as seen in stock market charts) one could see user names which contributed most to increase of the benchmarks score.
 
 #### Encourage business owners to publish in OSM
@@ -290,9 +292,9 @@ Adding new business to Open Street Map is quite easy task and takes just a few m
 
 In Poland every new business needs to register itself for tax & statistical purposes. Data about the businesses can be pulled out from a central database. After being pulled and cross-checked with existing OSM entries, we could build a computer bot which contacts the business owners and informs about OSM and how it's easy to add entry about a new business.
 There are a few challenges which would have to be tackled:
-- license problems: I don't know the licesne details of OSM data (if it can use such a central database) and the database itself. It uses captcha to prevent itself from bots, but maybe there is a bulk access possible for projects like OSM?
-- data in the central database is built for different purposes than improving online maps. There might be some cricual data missing: e.g. business email address
-- the communication with business owners needs to be nonintrusive.
+  - license problems: I don't know the licesne details of OSM data (if it can use such a central database) and the database itself. It uses captcha to prevent itself from bots, but maybe there is a bulk access possible for projects like OSM?
+  - data in the central database is built for different purposes than improving online maps. There might be some cricual data missing: e.g. business email address
+  - the communication with business owners needs to be nonintrusive.
 
 
 ## Conclusions
