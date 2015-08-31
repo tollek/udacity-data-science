@@ -12,6 +12,8 @@ import pprint
 OSMFILE = "krakow_poland.osm"
 
 VALID_POSTAL = re.compile('\d\d-\d\d\d')
+# NON-BREAKING HYPHEN
+INVALID_POSTAL_NON_BREAKING_HYPHEN = re.compile(u'\d\d‑\d\d\d')
 INVALID_POSTAL_MISSING_HYPHEN = re.compile('\d\d\d\d\d')
 
 
@@ -26,11 +28,16 @@ def fixed_postal_code(code):
     """
     if VALID_POSTAL.match(code):
         return (code, code)
+    elif INVALID_POSTAL_NON_BREAKING_HYPHEN.match(code):
+        fixed = code[0:2] + '-' + code[2:]
+        return (code, fixed)
     elif INVALID_POSTAL_MISSING_HYPHEN.match(code):
         fixed = code[0:2] + '-' + code[2:]
         return (code, fixed)
     else:
-        raise Exception('Invalid postal code: {0}'.format(code))
+        print code
+        msg = u'Invalid postal code: {0}'.format(code)
+        raise Exception(msg)
 
 
 def find_postal_issues(osmfile):

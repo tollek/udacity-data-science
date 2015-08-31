@@ -126,6 +126,8 @@ def shape_element(element):
                 else:
                     new_key = k.replace(':', "_")
                     node[new_key] = v
+            else:
+                node[k] = v
         # for "way" specifically, turn  <nd ref="2199822281"/> to node_refs: [...]
         if element.tag == 'way':
             for node_ref in element.iter('nd'):

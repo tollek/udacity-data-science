@@ -1,0 +1,9 @@
+Map of choice: Kraków (Cracow), Poland
+
+OSM map: https://www.openstreetmap.org/relation/2768922
+
+https://mapzen.com/data/metro-extracts, city name 'Krakow'
+
+I've chosen this map because it's the city I live in - I wanted to find out how robust the data about the Cracow already is and if I can improve it somehow.
+
+Map sample (5.3MB out of 519MB original, 1/100 of top level nodes): cracow/sample_krakow_poland.osm

@@ -2,8 +2,10 @@
 
 github: https://github.com/tollek/udacity-data-science/tree/master/p3
 
-Map Area: Cracow (Kraków / Krakow), Poland  
-https://www.openstreetmap.org/relation/2768922  
+Map Area: Cracow (Kraków / Krakow), Poland
+
+https://www.openstreetmap.org/relation/2768922
+
 https://mapzen.com/data/metro-extracts, city name 'Krakow'
 
 
@@ -101,12 +103,203 @@ Not found:  73.5%
 ```
 
 Clearly, proportion of not found restaurants is significanlty higher than found ones.
-Even if we take into account finding algorithm, which was not super accurate (although, acceptable after manual fixings of some of the restaurant names), the numbers are very unsatisfactory.  
+Even if we take into account finding algorithm, which was not super accurate (although, acceptable after manual fixings of some of the restaurant names), the numbers are very unsatisfactory.
 73.5% of missing restaurants makes the OSM an unreliable data source (at least, on its own), when it comes to analysing restaurant data. Any analysis that will use only the OSM data, should start with evaluating map completeness for given type of amenity.
 
 
+## Data overview
+This section contains basic statistics about the dataset and the MongoDB queries used to gather them.
+
+```
+size of the file:
+519M   krakow_poland.osm
+593M   krakow_poland.osm.json
+```
+
+```
+number of unique users:
+
+use osm
+db.cracow.aggregate([
+    {
+        $group: {
+            "_id": "$created.user"
+        }
+    },
+    {
+        $group: {
+            "_id": "unique users",
+            "count": {"$sum": 1},
+        }
+    },
+])
+
+Response:
+{ "_id" : "unique users", "count" : 1068 }
+
+```
+
+```
+number of nodes and ways
+
+use osm
+db.cracow.aggregate([
+    {
+        "$match": {
+            "$or": [
+                {"type": "node" },
+                {"type": "way"  } ,
+            ],
+        },
+    },
+    {
+        $group: {
+            "_id": "$type",
+            "count": {"$sum": 1},
+        }
+    },
+])
+
+Response:
+{ "_id" : "way", "count" : 281776 }
+{ "_id" : "node", "count" : 2379100 }
+
+```
+
+```
+number of chosen type of nodes (swimming pools):
+
+use osm
+db.cracow.aggregate([
+    {
+        "$match": {
+            "amenity": "swimming_pool" ,
+        },
+    },
+    {
+        $group: {
+            "_id": "$amenity",
+            "count": {"$sum": 1},
+        },
+    },
+])
+
+Response:
+{ "_id" : "swimming_pool", "count" : 17 }
+
+```
+
+
+## Other ideas about the datasets
+
+
+### Using the dataset
+```
+Find best streets to have fun:
+
+use osm
+db.cracow.aggregate([
+    {
+        $match: {
+            $or: [
+                {"amenity": "restaurant"},
+                {"amenity": "bar"} ,
+                {"amenity": "pub"} ,
+                {"amenity": "cafe"} ,
+            ],
+            "address.street": {$exists: true},
+        },
+    },
+    {
+        $group: {
+            "_id": "$address.street",
+            "count": {"$sum": 1},
+        },
+    },
+    {
+        $sort: {
+            "count": -1
+        }
+    },
+    {
+        $limit: 5,
+    }
+])
+
+
+Response:
+{ "_id" : "Rynek Główny", "count" : 41 }
+{ "_id" : "Józefa", "count" : 15 }
+{ "_id" : "Świętego Tomasza", "count" : 6 }
+{ "_id" : "Szewska", "count" : 6 }
+{ "_id" : "Mogilska", "count" : 5 }
+```
+
+```
+Find the bank with largest number of offices:
+
+use osm
+db.cracow.aggregate([
+    {
+        "$match": {
+            "amenity": "bank" ,
+            "name": {$exists: true},
+        },
+    },
+    {
+        $group: {
+            "_id": "$name",
+            "count": {"$sum": 1},
+        },
+    },
+    {
+        $sort: {
+            "count": -1
+        }
+    },
+    {
+        "$limit": 5,
+    }
+])
+
+Response:
+{ "_id" : "Millennium Bank", "count" : 17 }
+{ "_id" : "Deutsche Bank", "count" : 7 }
+{ "_id" : "Bank Spółdzielczy", "count" : 6 }
+{ "_id" : "Alior Bank", "count" : 6 }
+{ "_id" : "PKO SA", "count" : 5 }
+
+
+```
+
+
+### Improving the dataset
+Auditing the completeness of data has shown important problem with missing restaurant data.
+ We can look at this problems from 2 angles:
+ - does the problem happen only for restaurants? or for private businesses in general? or is also true for state-run amenities: post offices, state agencies, etc?
+ - how can we encourage restaurants owners to put their data into OSM?
+
+#### Completeness benchmark
+Being up-to-date with all privately run businesses is super difficult task, especially for projects that are run mostly thanks to voluntary work. I checked completeness of restaurant data, but the low  completeness percentage might not be a problem for different types of amenities.
+First of all, I expect large differences in coverage for facilities that have one central index, which can be used to pull data from. That's true e.g. for post offices or police stations. There are single pages where OSM editors can pull the data  from.
+Situation is completely different for private business and restuarants are only one example of such. Bars, cafes, barbers, etc. do not have one single index (actually, there migt be one, I discuss it in next section), which makes keeping the data in sync very difficult task.
+Some type of live benchmark that pulls data from well defined 'sources of truth' and verifies how many of the entries can be found in OSM could be an incentive to work on amenities with low coverage. Next to the coverage and 'delta' (with red/green colors as seen in stock market charts) one could see user names which contributed most to increase of the benchmarks score.
+
+#### Encourage business owners to publish in OSM
+Adding new business to Open Street Map is quite easy task and takes just a few minutes for people who have basic computer skills. I belive that main problem is lack of awareness among business owners. Do they know that OSM exist? Do they know that they can add the business data by themselves? Do they know it's free?
+
+In Poland every new business needs to register itself for tax & statistical purposes. Data about the businesses can be pulled out from a central database. After being pulled and cross-checked with existing OSM entries, we could build a computer bot which contacts the business owners and informs about OSM and how it's easy to add entry about a new business.
+There are a few challenges which would have to be tackled:
+- license problems: I don't know the licesne details of OSM data (if it can use such a central database) and the database itself. It uses captcha to prevent itself from bots, but maybe there is a bulk access possible for projects like OSM?
+- data in the central database is built for different purposes than improving online maps. There might be some cricual data missing: e.g. business email address
+- the communication with business owners needs to be nonintrusive.
+
+
+## Conclusions
+I am hugely impressed with the amount of data that have been put into the Cracow area OSM. Even with the problems I have found during the map audit, I am convinced that the map can be used as the data source for user applications. With some careful pre-analysis, it can most likely be used for analytical purposes also.
 
 ### References:
 - [Kraków on Open Street Map](https://www.openstreetmap.org/relation/2768922  )
 - [Kraków (Cracow) metro extract [city name 'Krakow']](https://mapzen.com/data/metro-extracts)
 - [List of Cracow restaurants](http://krakow.pl/odwiedz_krakow/1410,0,0,artykul,restauracje.html)
+- [MongoDB reference](https://docs.mongodb.org/manual/reference/operator/query/or/)
