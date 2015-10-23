@@ -1,0 +1,331 @@
+Problems set 3
+============================
+
+Diamonds
+--------
+Load the 'diamonds' data set in R studio.
+```{r}
+library(ggplot2)
+data(diamonds)
+
+observations <- dim(diamonds)[1]
+observations
+vars <- dim(diamonds)[2]
+vars
+
+# Ordered factors (count 'manually' vars with Ord. factor description)
+# Ans : 3
+str(diamonds)
+
+# What letter represents the best color for a diamond?
+# Levels: D < E < F < G < H < I < J
+# Ans : D (?diamonds: colour. diamond colour, from J (worst) to D (best))
+# factor(diamonds$color)
+levels(diamonds$color)
+```
+
+Price histogram
+---------------
+Create a histogram of the price of all the diamonds in the diamond data set.
+
+```{r}
+ggplot(aes(x=price), data=diamonds) +
+  geom_histogram(binwidth=200, color='black', fill='#02a0e2') + 
+  xlab("diamond price") +
+  ylab("# of samples")
+```
+
+Price Histogram Summary
+-----------------------
+Describe the shape and center of price distribution.
+
+Long tailed.
+```{r}
+mean(diamonds$price)
+median(diamonds$price)
+```
+
+Diamond counts
+-----------------------
+How many diamonds cost less than $500?
+```{r}
+sum(diamonds$price < 500)
+```
+
+How many diamonds cost less than $250?
+```{r}
+sum(diamonds$price < 250)
+```
+
+How many diamonds cost $15000 or more?
+```{r}
+sum(diamonds$price >= 15000)
+```
+
+
+Cheaper Diamonds
+----------------
+Explore the largest peak in the price histogram you created earlier.
+
+Try limiting the x-axis, altering the bin width, and setting different breaks on the x-axis.
+
+There won’t be a solution video for this question so go to the discussions to share your thoughts and discover what other people find.
+
+You can save images by using the ggsave() command.
+ggsave() will save the last plot created.
+For example...
+```
+qplot(x = price, data = diamonds)
+ggsave('priceHistogram.png')
+```
+
+ggsave currently recognises the extensions eps/ps, tex (pictex), pdf, jpeg, tiff, png, bmp, svg and wmf (windows only).
+
+Submit your final code when you are ready.
+
+```{r}
+ggplot(aes(x=price), data=diamonds) +
+  geom_histogram(binwidth=1, color='black', fill='#02a0e2') + 
+  scale_x_continuous(limits = c(300, 1200), breaks = seq(0, 1000, 50)) +
+  xlab("diamond price (limited to peak boundaries)") +
+  ylab("# of samples")
+```
+
+Findings:
+  - most diamonds fall into [500, 900] interval
+  - most common prices are round ones: x00, x25, x50, x75
+  - diamonds price = 605 is the most common
+
+
+Price by cut
+------------
+Break out the histogram of diamond prices by cut.
+
+You should have five histograms in separate panels on your resulting plot.
+
+```{r}
+ggplot(aes(x=price), data=diamonds) +
+  geom_histogram(binwidth=100, color='black', fill='#02a0e2') + 
+  facet_wrap(~cut)
+```
+
+Price by Cut
+------------
+Which cut has the highest priced diamond?
+```{r}
+highest_priced <- diamonds[diamonds$price == max(diamonds$price), ]
+highest_priced$cut
+```
+
+Which cut has the lowest priced diamond?
+```{r}
+lowest_priced <- diamonds[diamonds$price == min(diamonds$price), ]
+lowest_priced$cut
+```
+
+Which cut has the lowest median price?
+```{r}
+medians <- by(diamonds$price, diamonds$cut, median)
+medians[medians == min(medians)]
+```
+
+
+Scales and Multiple Histograms
+--------------------------------
+```{r}
+# In the two last exercises, we looked at the distribution for diamonds by cut.
+# Run the code below in R Studio to generate the histogram as a reminder.
+qplot(x = price, data = diamonds) + facet_wrap(~cut)
+
+by(diamonds$price, diamonds$cut, summary)
+```
+
+This means the distributions should be somewhat similar but the histograms we created don't show that.
+
+The 'Fair' and 'Good' diamonds appear to have different distributions compared to the better
+cut diamonds. They seem somewhat uniform on the left with long tails on the right.
+
+Let's look in to this more.
+
+Look up the documentation for facet_wrap in R Studio.
+Then, scroll back up and add a parameter to facet_wrap so that the y-axis in the histograms is not fixed. You want the y-axis to
+be different for each histogram.
+
+If you want a hint, check out the Instructor Notes (http://www.cookbook-r.com/Graphs/Facets_(ggplot2))
+
+```{r}
+ggplot(aes(x=price), data=diamonds) +
+  geom_histogram(binwidth=100, color='black', fill='#02a0e2') + 
+  facet_wrap(~cut, scales="free")
+```
+
+
+Price per Carat by Cut
+--------------------------------
+Create a histogram of price per carat and facet it by cut. You can make adjustments
+to the code from the previous exercise to get started.
+
+Adjust the bin width and transform the scale of the x-axis using log10.
+
+Hint 1: You use the price and carat variables in the parameter for x. What expression gives you price per carat? 
+Hint 2: For long tailed distributions, you can add a ggplot layer such as scale_x_log10() to transform the variable.
+
+```{r}
+ggplot(aes(x=price/carat), data=diamonds) +
+  geom_histogram(binwidth=0.03, color='black', fill='#02a0e2') + 
+  scale_x_log10() +
+  facet_wrap(~cut, scales="fixed")
+```
+
+Did you find normal-ish distributions and a slightly bimodal distribution for Very Good cuts? (If the Very Good facet looks smooth, try decreasing your bin width! If the data looks skewed, did you remember to perform a log10 transform?)
+
+
+Price Box Plots
+--------------------------------
+Investigate the price of diamonds using box plots, numerical summaries, and one of the following categorical
+variables: cut, clarity, or color.
+
+```{r Diamond price by cut box plots}
+ggplot(aes(x = cut, y = price), data=diamonds) +
+  # remove the outliers
+  # coord_cartesian(ylim = c(0, 8000)) +
+  geom_boxplot()
+
+by(diamonds$price, diamonds$cut, summary)
+```
+
+
+Interquartile Range - IQR
+--------------------------------
+What is the price range for the middle 50% of diamonds with color D?
+```{r}
+d_color <- diamonds[diamonds$color == "D", ]
+quantile(d_color$price, 1/4)
+quantile(d_color$price, 3/4)
+quantile(d_color$price, 3/4) - quantile(d_color$price, 1/4)
+```
+
+What is the price range for the middle 50% of diamonds with color J?
+```{r}
+j_color <- diamonds[diamonds$color == "J", ]
+quantile(j_color$price, 1/4)
+quantile(j_color$price, 3/4)
+quantile(j_color$price, 3/4) - quantile(j_color$price, 1/4)
+```
+
+Price per Carat Box Plots by Color
+-----------------------------------------------
+Investigate the price per carat of diamonds across the different colors of diamonds using boxplots.
+(http://www.lumeradiamonds.com/diamond-education/diamond-color)
+
+```{r Diamond price per carat by cut box plots}
+# TODO(pawelb): how to assign different colours to factors/colors?
+ggplot(aes(x = color, y = price/carat), data=diamonds) +
+  # remove the outliers
+  #coord_cartesian(ylim = c(0, 8000)) +
+  geom_boxplot()
+  
+```
+
+Carat Frequency Polygon
+-------------------------------------
+Investigate the weight of the diamonds (carat) using frequecny poligon. Use different bin widhts to see how
+the frequency polygon changes. What carat size has a count greater than 2000?
+
+Ans: 0.3, 1.01
+
+```{r carat frequency polygon}
+ggplot(aes(x = carat, y = ..count..), data=diamonds) +
+  geom_freqpoly(binwidth=0.01) +
+  scale_x_continuous(breaks=seq(0, 5, 0.2))
+
+```
+
+Data Wrangling with R
+-------------------------------------
+Links:
+Data Wrangling in R: https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf
+Data Wrangling Cheat Sheet: https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+
+
+Gapminder Data
+-------------------------
+Using 'Child per woman (total fertility)': http://spreadsheets.google.com/pub?key=tGdhNYGTGtunwzkKJ9aRhsA&gid=0
+
+```{r}
+library(openxlsx)
+#library(Hmisc)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+# There is problem with row=260 ('Aland') which causes error on making rowNames from 1st column, thus we skip it.
+fertility <- read.xlsx('indicator undata total_fertility.xlsx', rowNames = TRUE, rows=1:259)
+fertility <- mutate(fertility, country=rownames(fertility))
+#pl_fertility = gather(fertility['Poland',], year, "fertility", 1:length(fertility))
+fertility2 <- gather(fertility, year, "fertility", 1:(length(fertility)-1), convert=TRUE)
+fertility2 <- arrange(fertility2, country, year)
+
+# income has one empty row in the end
+income <- read.xlsx('indicator gapminder gdp_per_capita_ppp.xlsx', rowNames = TRUE, rows=1:260)
+income <- mutate(income, country=rownames(income))
+income2 <- gather(income, year, "fertility", 1:(length(income)-1), convert = TRUE)
+income2 <- arrange(income2, country, year)
+
+fer_inc <- inner_join(income2, fertility2, by = c("country", "year"))
+names(fer_inc) <- c("country", "year", "income", "fertility")
+
+fer_inc_2015 <- fer_inc[fer_inc$year == 2015 & !is.na(fer_inc$income) & !is.na(fer_inc$fertility),]
+
+# income in 2015 (# of countries)
+ggplot(aes(x=income), data = fer_inc_2015) + 
+  geom_histogram(color = 'black', fill = '#099DD9') +
+  scale_x_continuous(limits = c(0, 100000), breaks = seq(0, 100000, 25000))
+
+# histogram of fertility as funciof of income (income in buckets)
+# cut_number cuts number vector into intervals containing equal number of points
+ggplot(aes(x=cut_number(income, n=20), y=fertility), data = fer_inc_2015)  +
+  geom_bar(stat = "summary", fun.y = "mean", color = 'black', fill = '#00B909') +
+  theme(axis.text.x = element_text(angle = 270, hjust = 1, vjust=0.5)) +
+  xlab("income bucket")
+
+# fertility as function of income
+# we add custom labels formatter to see numbers instead of scientific notation
+ggplot(aes(x=income, y=fertility), data = fer_inc_2015) + geom_jitter() +
+  scale_x_log10(breaks=c(1000, 5000, 10000, 20000, 50000, 100000), labels=function(n){format(n, scientific = FALSE)})
+
+# how did fertility changed in years?
+fer_inc_cent <- fer_inc[fer_inc$year %in% c(1900, 1950, 2000, 2015) & !is.na(fer_inc$income) & !is.na(fer_inc$fertility),]
+ggplot(aes(x = factor(year), y = fertility), data = fer_inc_cent) + geom_boxplot()
+
+```
+
+
+Exploring Your Friends' Birthdays
+-------------------------------------------
+Using sample file: birthdaysExample.csv
+
+```{r}
+bday <- read.csv('pawelb_friends_birthday.csv')
+bday <- separate(bday, 'bday', c("month", "day", "year"), sep="/")
+bday <- arrange(bday[, c('month', 'day')], month, day)
+
+# Which month contains the most number of birthdays?
+bday_cnt <- table(bday$month)
+bday_cnt[bday_cnt == max(bday_cnt)]
+
+# How many birthdays are in each month?
+table(bday$month)
+
+ggplot(aes(x = bday$month), data = bday) + geom_histogram(fill = '#cc3637')
+
+# Which day of the year has the most number of birthdays?
+summary(as.factor(paste0(bday$month, '-', bday$day)))[1:3]
+
+# Do you have at least 365 friends that have birthdays on everyday of the year?
+days = data.frame(seq(as.Date("2015-01-01"), as.Date("2015-12-31"), by="1 day"))
+names(days) <- c('day')
+days <- separate(days, day, c("year", "month", "day"), sep="-")
+days <- arrange(days[, c('month', 'day')], month, day)
+missing_days = anti_join(days, bday, by = c("month", "day"))
+dim(missing_days)
+```

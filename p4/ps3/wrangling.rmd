@@ -1,0 +1,137 @@
+Data Wrangling with R
+=========================
+
+https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf
+https://dl.dropboxusercontent.com/u/5896466/wrangling-webinar.pdf
+
+Cheatsheet:
+https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+
+Datasets
+--------
+?storms
+?cases
+?pollution
+?tb
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+tbl_df(diamonds)
+View(diamonds)
+
+library(EDAWR)
+```
+
+
+Gather
+------
+Tidy data set features:
+  - each column = variable
+  - each row = single observation
+  - each type of observation = single table
+
+```{r}
+cases
+
+# cases - data frame to reshape
+# year - name of the new key column (a character string)
+# n - name of the new value column (a character string)
+# 2:4 names or numeric indexes of columns to collapse
+gather(cases, year, "n", 2:4)
+```
+
+Spread
+-------
+Spread a key-value pair across multiple columns.
+
+```{r}
+pollution
+
+# pollution: data frame to reshape
+# size: column to use for keys (new columns names)
+# amount: columns to use for values (new column cells)
+spread(pollution, size, amount)
+```
+
+
+unite() and separate()
+-----------------------
+```{r}
+storms
+
+separate(storms, date, c("year", "month", "day"), sep = "-")
+
+storms2 <- separate(storms, date, c("year", "month", "day"), sep = "-")
+unite(storms2, "date", year, month, day, sep = "-")
+
+```
+
+
+Ways to access information
+--------------------------
+
+1. Extract existing variables  __select()__
+2. Extract existing observations __filter()__
+3. Derive new variables from existing vars  __mutate()__
+4. Change the unit of analysis    __summarise()__
+
+### select()
+```{r}
+select(storms, storm, pressure)
+
+# see ?select for more
+select(storms, -storm)
+
+select(storms, wind:date)
+```
+
+### filter()
+```{r}
+filter(storms, wind >= 50)
+
+filter(storms, wind >= 50, storm %in% c("Alberto", "Alex", "Allison"))
+```
+
+### mutate()
+```{r}
+mutate(storms, ratio = pressure / wind)
+
+mutate(storms, ratio = pressure / wind, inverse = ratio^-1)
+```
+
+### summarise()
+```{r}
+pollution %>% summarise(median = median(amount), variance = var(amount))
+
+pollution %>% summarise(mean = mean(amount), sum = sum(amount), n = n())
+```
+
+### arrange()
+arrange sorts observations by given column
+```{r}
+arrange(storms, wind)
+
+arrange(storms, desc(wind))
+
+arrange(storms, wind, date)
+```
+
+Unit of analysis
+---------------------
+```{r}
+group_by(pollution, city)
+# pollution %>% group_by(city)
+
+pollution %>% group_by(city) %>%
+ summarise(mean = mean(amount), sum = sum(amount), n = n())
+```
+
+```{r}
+# NOTE(pawelb): not working due to data format change
+#tb %>%
+# group_by(country, year) %>%
+# summarise(cases = sum(cases))
+```
