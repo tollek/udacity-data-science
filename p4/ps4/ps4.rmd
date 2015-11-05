@@ -203,7 +203,6 @@ fertility <- read.xlsx('indicator undata total_fertility.xlsx', rowNames = TRUE,
 fertility <- mutate(fertility, country=rownames(fertility))
 fertility <- gather(fertility, year, "fertility", 1:(length(fertility)-1), convert=TRUE)
 fertility <- arrange(fertility, country, year)
-head(fertility)
 
 income <- read.xlsx('indicator gapminder gdp_per_capita_ppp.xlsx', rowNames = TRUE, rows=1:260)
 income <- mutate(income, country=rownames(income))

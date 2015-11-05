@@ -314,15 +314,8 @@ fertility &lt;- read.xlsx('indicator undata total_fertility.xlsx', rowNames = TR
 fertility &lt;- mutate(fertility, country=rownames(fertility))
 fertility &lt;- gather(fertility, year, &quot;fertility&quot;, 1:(length(fertility)-1), convert=TRUE)
 fertility &lt;- arrange(fertility, country, year)
-head(fertility)</code></pre>
-<pre><code>##    country year fertility
-## 1 Abkhazia 1800        NA
-## 2 Abkhazia 1801        NA
-## 3 Abkhazia 1802        NA
-## 4 Abkhazia 1803        NA
-## 5 Abkhazia 1804        NA
-## 6 Abkhazia 1805        NA</code></pre>
-<pre class="r"><code>income &lt;- read.xlsx('indicator gapminder gdp_per_capita_ppp.xlsx', rowNames = TRUE, rows=1:260)
+
+income &lt;- read.xlsx('indicator gapminder gdp_per_capita_ppp.xlsx', rowNames = TRUE, rows=1:260)
 income &lt;- mutate(income, country=rownames(income))
 income &lt;- gather(income, year, &quot;fertility&quot;, 1:(length(income)-1), convert = TRUE)
 income &lt;- arrange(income, country, year)
