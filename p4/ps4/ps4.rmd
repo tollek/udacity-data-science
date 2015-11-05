@@ -1,0 +1,266 @@
+Problems set 4
+============================
+
+Price vs. x
+-------------
+
+```{r}
+library(ggplot2)
+library(ggthemes)
+theme_set(theme_minimal())
+library(dplyr)
+data(diamonds)
+
+summary(diamonds$x)
+ggplot(aes(x=x, y=price), data=diamonds) +
+  geom_point(alpha = 0.05) + 
+  scale_x_continuous(limits=c(3,10), breaks=seq(3,10,0.5))
+
+```
+
+Observations:
+
+- price seems to grow exponentially wit the lenght (x) value
+- there seems to exist 'size clusters': e.g. for value of ~5.25 there is significantly more observations than for 5.0 and 5.5;
+  same for larges sizes (e.g. 5.75)
+- there is less large diamonds (size > 7) than small and medium ones
+- one can't buy small diamonds for more than 5000$
+- buying large diamond for < 5000$ is almost impossible
+
+```{r}
+# correlation between price and x (0.88)
+cor.test(diamonds$price, diamonds$x)
+
+# correlation between price and y (0.87)
+cor.test(diamonds$price, diamonds$y)
+
+# correlation between price and z (0.86)
+cor.test(diamonds$price, diamonds$z)
+```
+
+Price vs. depth
+---------------
+```{r}
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point(alpha = 0.1) +
+  scale_x_continuous(limits=c(50, 70))
+
+# Change the code to make the transparency of the
+# points to be 1/100 of what they are now and mark
+# the x-axis every 2 units.
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point(alpha = 0.01) +
+  scale_x_continuous(limits=c(50, 70), breaks=seq(50, 70, 2))
+```
+
+Typical depth range: 58 to 64.
+
+```{r}
+# What's the correlation of depth vs price? (-0.01)
+cor.test(diamonds$depth, diamonds$price)
+```
+
+Would you use depth to predict price of a diamond: No
+Why: low absolute value of correlation coefficient (next to 0) means there is no correlation between depth and price.
+Diamonds of any depth can achieve both very low and very high price.
+
+Price vs. carat
+-----------------
+```{r}
+diamonds.top1p_excluded = subset(diamonds, 
+                                 diamonds$carat < quantile(diamonds$carat, .99) & diamonds$price < quantile(diamonds$price, .99))
+ggplot(aes(x = carat, y = price), data = diamonds.top1p_excluded) +
+  geom_point()
+
+```
+
+Price vs. volume
+----------------
+```{r}
+diamonds$volume = diamonds$x * diamonds$y * diamonds$x
+ggplot(aes(x = volume, y = price), data = diamonds) +
+  geom_point(alpha = 0.05) +
+  scale_x_log10(limits=c(50, 1000), breaks=c(50, 100, 200, 300, 400, 500, 700, 1000))
+```
+
+Observations:
+
+- price vs volume follows similar trend as price vs x (exponential growth of price with x)
+- there are volume clusters (e.g. 150, 200, 400, 500)
+- diamonds with volume < 350 are most popular
+- log scale is not required here - continuous scale works better (easier to interpret)
+
+Did not notice:
+
+- outliers:
+    - expensive diamond near 4000 and a cheaper diamond with a volume near 900
+      (I removed the outliers to make the chart x-axis limits better)
+- diamonds with volume == 0 (8!)
+
+```{r}
+# What's the correlation of price and volume? (0.92)
+# NOTE: instructor notes suggest removing outliers (vol > 800 && vol = 0)
+cor.test(diamonds$price, diamonds$volume)
+```
+
+### Adjustments - price vs. volume
+```{r}
+# Subset the data to exclude diamonds with a volume
+# greater than or equal to 800. Also, exclude diamonds
+# with a volume of 0. Adjust the transparency of the
+# points and add a linear model to the plot. (See the
+# Instructor Notes or look up the documentation of
+# geom_smooth() for more details about smoothers.)
+require(mgcv)
+diamonds.vol_nooutliers = diamonds[diamonds$volume < 800 & diamonds$volume != 0, ]
+ggplot(aes(x = volume, y = price), data = diamonds.vol_nooutliers) +
+  geom_point(alpha = 0.05) + 
+  stat_smooth(method = 'lm', formula = y ~ x, color = 'brown', size = 1) +
+  stat_smooth(method = 'lm', formula = y ~ poly(x, 2), color = 'red', size = 1) +
+  stat_smooth(method = 'lm', formula = y ~ poly(x, 3), color = 'blue') +
+  stat_smooth(method = 'gam', formula = y ~ s(x), color = 'green')
+```
+
+Observations:
+
+- linear and square models are worse than cubic and gam models - they overprice smaller diamonds
+- estimating value of diamonds with volume > 300 is not doable with any models - variance is too high and model
+  cannot determine the price based on volume only
+
+Mean price by clarity
+---------------------
+
+Use the function dplyr package to create a new data frame containing info on diamonds by clarity.
+
+Name the data frame diamondsByClarity
+
+The data frame should contain the following variables in this order.
+
+    1. mean_price
+    2. median_price
+    3. min_price
+    4. max_price
+    5. n
+    
+```{r}
+diamondsByClarity = group_by(diamonds, clarity)
+diamondsByClarity = summarise(diamondsByClarity,
+                              mean_price = mean(price),
+                              median_price = median(price),
+                              min_price = min(price),
+                              max_price = max(price),
+                              n = n())
+head(diamondsByClarity)
+```
+
+
+Bar Charts of Mean Price
+------------------------
+We’ve created summary data frames with the mean price
+by clarity and color. You can run the code in R to
+verify what data is in the variables diamonds_mp_by_clarity
+and diamonds_mp_by_color.
+
+Your task is to write additional code to create two bar plots
+on one output image using the grid.arrange() function from the package
+gridExtra.
+
+flowigdata.com article on Bar Charts vs Histograms: http://flowingdata.com/2014/02/27/how-to-read-histograms-and-use-them-in-r/
+
+```{r}
+data(diamonds)
+library(dplyr)
+library(gridExtra)
+
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+#diamonds_by_cut <- group_by(diamonds, cut)
+#diamonds_mp_by_cut <- summarise(diamonds_by_cut, mean_price = mean(price))
+
+p1 <- ggplot(aes(x = clarity, y = mean_price), data = diamonds_mp_by_clarity) + geom_bar(stat='identity')
+p2 <- ggplot(aes(x = color, y = mean_price), data = diamonds_mp_by_color) + geom_bar(stat='identity')
+#p3 <- ggplot(aes(x = cut, y = mean_price), data = diamonds_mp_by_cut) + geom_bar(stat='identity')
+grid.arrange(p1, p2, ncol = 1)
+```
+
+Observations:
+
+- color seems to define a scale with 'best' and 'worst' colors (price for J > ... > price for D)
+- clarity also seems to define some type of order with spike on SI2 and lowest price values -> IF
+- (instructor notes): mean price tends to decrease as clarity improve; the same can be said for color.  
+  Look at mean price across cut.
+  
+Gapminder Revisited
+-------------------
+```{r}
+library(openxlsx)
+library(tidyr)
+fertility <- read.xlsx('indicator undata total_fertility.xlsx', rowNames = TRUE, rows=1:259)
+fertility <- mutate(fertility, country=rownames(fertility))
+fertility <- gather(fertility, year, "fertility", 1:(length(fertility)-1), convert=TRUE)
+fertility <- arrange(fertility, country, year)
+head(fertility)
+
+income <- read.xlsx('indicator gapminder gdp_per_capita_ppp.xlsx', rowNames = TRUE, rows=1:260)
+income <- mutate(income, country=rownames(income))
+income <- gather(income, year, "fertility", 1:(length(income)-1), convert = TRUE)
+income <- arrange(income, country, year)
+
+fer_inc <- inner_join(income, fertility, by = c("country", "year"))
+names(fer_inc) <- c("country", "year", "income", "fertility")
+head(fer_inc)
+```
+
+### How did fertility income change in time?
+```{r}
+summary(fer_inc$income)
+ggplot(aes(x = year, y = income), data = fer_inc) +
+  geom_point(alpha = 0.2, color = 'orange') +
+  coord_cartesian(ylim=c(300, 190000)) +
+  scale_y_log10() +
+  geom_line(stat = 'summary', fun.y = mean) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, probs = .1, linetype = 2, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, probs = .9, linetype = 2, color = 'blue')
+
+fer_inc[!is.na(fer_inc$income) & fer_inc$income < 300,]
+```
+
+Observations:
+
+- there are some values of income < 300 (Liberia in 1992-1997) which were removed from plot for better axis adjustment.
+  What happened in Liberia in 1990s? [civil war]
+- there are countries with income > 100000 (Brunei, Kuwait, Macao, Qatar and United Arab Emirates). It's good to have lots
+  of oil, right?:)  
+- general trend is that income is growing (significantly!); the growth started in 1900 and continues until now
+- median and mean do not go far from each other.  
+  Probably the income distribution is ~ normal distribution
+
+### How did income and fertility changed in time?
+```{r}
+fer_inc.means <- fer_inc %>%
+  group_by(year) %>%
+  summarise(mean_income = mean(income, na.rm = TRUE),
+            mean_fertility = mean(fertility, na.rm = TRUE),
+            n = n()) %>%
+  arrange(year)
+head(fer_inc.means)
+p1 <- ggplot(aes(x = year), data = fer_inc.means) +
+  geom_point(aes(y = mean_income), color = 'red')
+p2 <- ggplot(aes(x = year), data = fer_inc.means) +  
+  geom_point(aes(y = mean_fertility), color = 'blue')
+library(gridExtra)
+grid.arrange(p1, p2, ncol=1)
+
+cor.test(fer_inc$income, fer_inc$fertility)
+```
+
+Observations:
+
+- as the mean income is going up, so does the mean fertility rates are dropping. 
+  It seems like both value are correlated (Pearson: -0.48), so increase in income causes decrease in fertility.
+  
