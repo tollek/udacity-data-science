@@ -1,0 +1,267 @@
+Problems set 5
+============================
+
+ Price Histograms with Facet and Color
+--------------------------------------
+
+```{r}
+library(ggplot2)
+library(ggthemes)
+theme_set(theme_minimal())
+library(dplyr)
+data(diamonds)
+
+# Create a histogram of diamond prices.
+# Facet the histogram by diamond color and use cut to color the histogram bars.
+
+# The plot should look something like this. http://i.imgur.com/b5xyrOu.jpg
+
+# Note: In the link, a color palette of type 'qual' was used to color the histogram using
+# scale_fill_brewer(type = 'qual')
+ggplot(aes(x = price), data = diamonds) +
+  # other position values (fill, stack) look not better (or even worse)
+  geom_histogram(aes(fill = cut), position = 'stack') + 
+  facet_wrap(~ color) +
+  scale_fill_brewer("cut", type = 'qual', palette = "Set1")
+```
+
+Observations:
+
+- H-I-J colors seems to present different distribution (bimodal) vs distribution of D-E-F-G colors.
+  OTOH, this should be investigated, as the first impression might be false due to high spikes in D-G colors.
+- ideal cut share is bigger in smaller price ranges (probably because they're smaller diamonds and it's hard to find
+  big ideal diamond)
+
+
+Price vs. Table Colored by Cut
+------------------------------
+```{r}
+# Create a scatterplot of diamond price vs. table and color the points by the cut of
+# the diamond.
+
+# The plot should look something like this.
+# http://i.imgur.com/rQF9jQr.jpg
+ggplot(aes(x = table, y = price), data = diamonds) +
+  geom_point(aes(color = cut), size = 3) +
+  # add scale and limits to see typical range easily
+  scale_x_continuous(limits = c(50, 70), breaks=seq(50, 70, 1)) +
+  scale_color_brewer("cut", type = 'qual', palette = 1)
+```
+
+Observations:
+
+- there is most popular (preferred) range of table values 52-66.
+- there seems to be no correlation between table and price
+- cut is correlated with table (table goes up then cut goes from ideal to fair)
+
+#### Typical table value
+What is the typical table range for the majority of diamonds of IDEAL cut? 53-57
+
+What is the typical table range for the majority of diamonds of PREMIUM cut? 58-62
+
+
+Price vs. Volume and Diamond Clarity
+------------------------------------
+```{r}
+# Create a scatterplot of diamond price vs. volume (x * y * z) and color the points by
+# the clarity of diamonds. 
+# Use scale on the y-axis to take the log10 of price. You should also omit the top 1% of diamond volumes from the plot.
+
+# Note: Volume is a very rough approximation of a diamond's actual volume.
+
+# The plot should look something like this. http://i.imgur.com/excUpea.jpg
+
+# Note: In the link, a color palette of type 'div' was used to color the scatterplot using
+# scale_color_brewer(type = 'div')
+diamonds$volume = diamonds$x * diamonds$y * diamonds$z
+ggplot(aes(x = volume, y = price), data = subset(diamonds, volume < quantile(diamonds$volume, 0.99))) +
+  geom_point(aes(color = clarity)) +
+  scale_y_log10() +
+  scale_color_brewer(type = 'div')
+
+
+```
+
+Observations:
+
+- larger volume clearly affects the price
+- better the clarity, higher the price of diamonds. 
+  Clarity is not as strong predictor as volume (on the log scale, the clarity adjusts the price to general trend coming from volume)
+- there is less large diamonds (>250) with best clarities
+
+
+Proportion of Friendships Initiated
+------------------------------
+
+Many interesting variables are derived from two or more others.  
+For example, we might wonder how much of a person's network on a service like Facebook the user actively initiated. Two users
+with the same degree (or number of friends) might be very different if one initiated most of those connections on the
+service, while the other initiated very few. So it could be useful to consider this proportion of existing friendships that
+the user initiated. This might be a good predictor of how active a user is compared with their peers, or other traits, such as
+personality (i.e., is this person an extrovert?).
+
+Your task is to create a new variable called 'prop_initiated' in the Pseudo-Facebook data set. The variable should contain
+the proportion of friendships that the user initiated.
+
+```{r}
+pf = read.delim('pseudo_facebook.tsv')
+pf$prop_initiated = pf$friendships_initiated / pf$friend_count
+```
+
+
+prop_initiated vs. tenure
+-------------------------
+```{r}
+# Create a line graph of 
+# the median proportion of friendships initiated ('prop_initiated') vs. tenure 
+# and color the line segment by year_joined.bucket.
+
+# Recall, we created year_joined.bucket in Lesson 5
+# by first creating year_joined from the variable tenure.
+# Then, we used the cut function on year_joined to create
+# four bins or cohorts of users.
+
+# (2004, 2009]
+# (2009, 2011]
+# (2011, 2012]
+# (2012, 2014]
+
+# The plot should look something like this.
+# http://i.imgur.com/vNjPtDh.jpg
+# OR this
+# http://i.imgur.com/IBN1ufQ.jpg
+pf$year_joined <- 2014 - ceiling(pf$tenure / 365)
+pf$year_joined.bucket <- cut(pf$year_joined, breaks = c(2004, 2009, 2011, 2012, 2014))
+ggplot(aes(x = tenure, y = prop_initiated), data = pf) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+```
+
+Observations:
+
+- prop_initiated has the same trend, as friend_count. More mature (tenure) FB users are less active than the new ones.
+- variability of the prop_initiated raises in time. Apparently, all new users (despite the character traits) are active ones,
+  and the want to build up their friends network quickly. After the initial 'storm', the person character has stronger impact
+  on how the person is active.
+- clearly, people who joined after 2012 initiated the greated proportion of their FB friendships
+
+
+Smoothing prop_initiated vs. tenure
+-----------------------------------
+```{r}
+# Smooth the last plot you created of of prop_initiated vs tenure colored by
+# year_joined.bucket. 
+# You can bin together ranges of tenure or add a smoother to the plot.
+ggplot(aes(x = 30 * round(tenure / 30), y = prop_initiated), data = pf) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+
+ggplot(aes(tenure, y = prop_initiated), data = pf) +
+  geom_smooth(aes(color = year_joined.bucket))
+```
+
+For the group with the largest propotion of the friendships initiated, what is the group's average (mean)
+proportion of friendships initiaited?
+```{r}
+with(subset(pf, pf$year_joined.bucket == "(2012,2014]"), table(year_joined.bucket))
+# 0.6653892
+with(subset(pf, year_joined.bucket == "(2012,2014]"), mean(prop_initiated, na.rm=TRUE))
+```
+
+
+Price/Carat Binned, Faceted, & Colored
+--------------------------------------
+```{r}
+# Create a scatter plot of the price/carat ratio of diamonds. 
+# The variable x should be assigned to cut. 
+# The points should be colored by diamond color, 
+# and the plot should be faceted by clarity.
+
+# The plot should look something like this.
+# http://i.imgur.com/YzbWkHT.jpg.
+
+# Note: In the link, a color palette of type 'div' was used to color the histogram using
+# scale_color_brewer(type = 'div')
+
+ggplot(aes(x = cut, y = price/carat), data = diamonds) +
+  #geom_point(aes(color = color)) +
+  # use geom_jitter to spread the values inside single color bucket
+  geom_jitter(aes(color = color), alpha = 1, position = position_jitter(h = 0)) +
+  facet_wrap(~ clarity) +
+  scale_color_brewer(type = 'div')
+```
+
+Observations:
+
+- there is a trend to increase the price as the cut (x-axis) gets better
+- there is more diamonds with middle-type clarity (SI2, SII, VS2), than bad ones (I1) and best (WS1, IF)
+- for given cut and clarity there are 'levels' of prices (visible e.g. for D colours in each bar)
+
+
+Gapminder Multivariate Analysis
+------------------------------
+
+Gapminder data: http://www.gapminder.org/data/
+
+In your investigation, examine 3 or more variables and create 2-5 plots that make use of the techniques from Lesson 5.
+
+```{r}
+# scatter/line plot of GDP and education level of population, male and female
+library(openxlsx)
+library(tidyr)
+literacy_total <- read.xlsx('indicator SE_ADT_LITR_ZS.xlsx', rowNames = TRUE)
+literacy_total <- mutate(literacy_total, country = rownames(literacy_total))
+literacy_total <- gather(literacy_total, year, "literacy.total", 1:(length(literacy_total)-1), convert=TRUE)
+literacy_total <- arrange(literacy_total, country, year)
+literacy_total <- subset(literacy_total, !is.na(literacy_total$literacy.total))
+
+literacy_male = read.xlsx('indicator SE_ADT_LITR_MA_ZS.xlsx', rowNames = TRUE)
+literacy_male <- mutate(literacy_male, country = rownames(literacy_male))
+literacy_male <- gather(literacy_male, year, "literacy.male", 1:(length(literacy_male)-1), convert=TRUE)
+literacy_male <- arrange(literacy_male, country, year)
+literacy_male <- subset(literacy_male, !is.na(literacy_male$literacy.male))
+
+literacy_female = read.xlsx('indicator SE_ADT_LITR_FE_ZS.xlsx', rowNames = TRUE)
+literacy_female <- mutate(literacy_female, country = rownames(literacy_female))
+literacy_female <- gather(literacy_female, year, "literacy.female", 1:(length(literacy_female)-1), convert=TRUE)
+literacy_female <- arrange(literacy_female, country, year)
+literacy_female <- subset(literacy_female, !is.na(literacy_female$literacy.female))
+
+income <- read.xlsx('indicator gapminder gdp_per_capita_ppp.xlsx', rowNames = TRUE, rows=1:260)
+income <- mutate(income, country=rownames(income))
+income <- gather(income, year, "income", 1:(length(income)-1), convert = TRUE)
+income <- arrange(income, country, year)
+
+lit_inc <- inner_join(income, literacy_total, by = c("country", "year"))
+lit_inc <- inner_join(lit_inc, literacy_male, by = c("country", "year"))
+lit_inc <- inner_join(lit_inc, literacy_female, by = c("country", "year"))
+lit_inc$country.fact = factor(lit_inc$country)
+```
+
+```{r}
+lit_inc2 <- gather(lit_inc, "group", "literacy", 4:6)
+lit_inc2$group.fact = factor(lit_inc2$group)
+ggplot(aes(x = round(income/2000)*2000, y = literacy), data = lit_inc2) +
+  geom_line(aes(color = group.fact), stat = 'summary', fun.y = mean) +
+  scale_x_log10()
+```
+
+Observations:
+
+- no matter how high the income and literacy rate, % of literacy among male is higher than among female.
+  Larget income only reduces the difference, but the difference remains
+
+```{r}
+set.seed(4000)
+sample.countries <- sample(levels(lit_inc$country.fact), 16)
+ggplot(aes(x = literacy.total, y = income), data = subset(lit_inc, country %in% sample.countries)) +
+  geom_point(size = 3) +
+  scale_y_log10() +
+  #scale_color_brewer(type = 'div', palette = 3)
+  facet_wrap(~ country.fact)
+```
+
+Observations:
+
+- literacy is required for any significant increase in income.
+  Only countries with high literacy rate managed to increase their literacy rates.
+- Bahrain contradicts the statements. Apparently, large oil reserves == high literacy
+
